@@ -366,7 +366,8 @@ function renderAdminGate(user) {
       </div>
       <div class="msg error" id="gateError"></div>
       <form id="gateLoginForm">
-        <div class="field"><label for="gatePassword">Password</label><input type="password" id="gatePassword" required autocomplete="current-password" /></div>
+        <div class="field"><label for="gatePassword">Password</label><input type="password" id="gatePassword" required autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" /></div>
+        <button type="button" id="gateShowPw" style="background:none;border:none;color:var(--muted);font-size:0.8rem;cursor:pointer;padding:0 0 12px;text-decoration:underline;">Show password</button>
         <button type="submit" class="btn btn-primary btn-block" id="gateLoginBtn">Enter</button>
       </form>
     </div>
@@ -374,6 +375,13 @@ function renderAdminGate(user) {
 
   const form = document.getElementById("gateLoginForm");
   const errEl = document.getElementById("gateError");
+  const showBtn = document.getElementById("gateShowPw");
+  const pwInput = document.getElementById("gatePassword");
+  showBtn.addEventListener("click", () => {
+    const isHidden = pwInput.type === "password";
+    pwInput.type = isHidden ? "text" : "password";
+    showBtn.textContent = isHidden ? "Hide password" : "Show password";
+  });
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     errEl.classList.remove("show");
