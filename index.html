@@ -358,9 +358,42 @@ function renderAdminGate(user) {
   }
   panel.style.display = "none";
   gate.style.display = "";
-  gate.innerHTML = user
-    ? `<div class="empty-state"><div class="glyph">🔒</div><p>This account isn't authorized for admin access.</p></div>`
-    : `<div class="empty-state"><div class="glyph">🔒</div><p>Please log in with the admin account on the main site first, then come back here.</p></div>`;
+  gate.innerHTML = `
+    <div class="card" style="max-width:340px;margin:40px auto;">
+      <div class="empty-state" style="padding:0 0 14px;">
+        <div class="glyph">🔒</div>
+        <p>Admin panel — enter password</p>
+      </div>
+      <div class="msg error" id="gateError"></div>
+      <form id="gateLoginForm">
+        <div class="field"><label for="gatePassword">Password</label><input type="password" id="gatePassword" required autocomplete="current-password" /></div>
+        <button type="submit" class="btn btn-primary btn-block" id="gateLoginBtn">Enter</button>
+      </form>
+    </div>
+  `;
+
+  const form = document.getElementById("gateLoginForm");
+  const errEl = document.getElementById("gateError");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errEl.classList.remove("show");
+    const btn = document.getElementById("gateLoginBtn");
+    btn.disabled = true;
+    btn.textContent = "Checking…";
+    const password = document.getElementById("gatePassword").value;
+    try {
+      await auth.signInWithEmailAndPassword(ADMIN_EMAIL, password);
+      // onAuthStateChanged below will re-render automatically on success
+    } catch (err) {
+      errEl.textContent =
+        err.code === "auth/wrong-password" || err.code === "auth/user-not-found" || err.code === "auth/invalid-credential"
+          ? "Incorrect password."
+          : (err.message || "Something went wrong. Please try again.");
+      errEl.classList.add("show");
+      btn.disabled = false;
+      btn.textContent = "Enter";
+    }
+  });
 }
 
 auth.onAuthStateChanged((user) => renderAdminGate(user));
