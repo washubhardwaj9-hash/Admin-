@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — WB App Store</title>
+<meta name="robots" content="noindex, nofollow" />
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+  :root {
+    --accent: #c6ff3d;
+    --accent-ink: #10130a;
+    --accent2: #7c5cff;
+    --danger: #ff5c7a;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --font-display: "Space Grotesk", sans-serif;
+    --font-body: "Inter", sans-serif;
+  }
+  [data-theme="dark"] {
+    --bg: #101014; --surface: #1b1c22; --surface-2: #23252c;
+    --border: rgba(255,255,255,0.08); --text: #f4f4f6; --muted: #9a9ca6;
+  }
+  [data-theme="light"] {
+    --bg: #f6f6f9; --surface: #ffffff; --surface-2: #eeeef3;
+    --border: rgba(16,17,20,0.08); --text: #14151a; --muted: #62636d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .container { max-width: 680px; margin: 0 auto; padding: 0 20px 60px; }
+  .header {
+    display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10;
+  }
+  .header .logo-mark {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.7rem; color: #10130a;
+  }
+  .header .title { font-family: var(--font-display); font-weight: 700; }
+  .header .sub { color: var(--muted); font-size: 0.8rem; }
+  .icon-btn {
+    margin-left: auto; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); width: 38px; height: 38px; cursor: pointer; font-size: 1.05rem;
+  }
+  h1 { font-family: var(--font-display); font-size: 1.4rem; margin: 24px 0 4px; }
+  .hero-sub { color: var(--muted); margin: 0 0 20px; font-size: 0.92rem; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: none; border-radius: var(--radius-sm); padding: 12px 20px;
+    font-family: var(--font-display); font-weight: 600; font-size: 0.92rem; cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-sm { padding: 8px 14px; font-size: 0.82rem; }
+  .btn-block { width: 100%; }
+  .btn:disabled { opacity: 0.6; cursor: default; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; }
+  .card + .card { margin-top: 14px; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tabs button {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    padding: 9px 16px; border-radius: 999px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+  }
+  .tabs button.active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; }
+  .field input, .field select, .field textarea {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px; color: var(--text);
+    font-family: var(--font-body); font-size: 0.92rem;
+  }
+  .field textarea { min-height: 80px; resize: vertical; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+  .checkbox-field { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .checkbox-field input { width: auto; }
+  .checkbox-field label { margin: 0; font-size: 0.88rem; font-weight: 500; }
+
+  .msg { padding: 10px 12px; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 14px; display: none; }
+  .msg.show { display: block; }
+  .msg.error { background: rgba(255,92,122,0.12); border: 1px solid rgba(255,92,122,0.4); color: var(--danger); }
+  .msg.success { background: rgba(198,255,61,0.12); border: 1px solid rgba(198,255,61,0.4); color: #8fae2c; }
+
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--muted); }
+  .empty-state .glyph { font-size: 2.2rem; margin-bottom: 8px; }
+
+  .sub-card h3 { margin: 0 0 4px; font-family: var(--font-display); font-size: 1rem; }
+  .sub-card .meta { color: var(--muted); font-size: 0.82rem; margin-bottom: 3px; }
+  .sub-card p { margin: 8px 0; color: var(--muted); font-size: 0.88rem; }
+  .sub-actions { display: flex; gap: 10px; margin-top: 10px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 20px);
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    padding: 12px 18px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;
+    opacity: 0; pointer-events: none; transition: opacity 200ms, transform 200ms; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+
+<script>
+  var t = localStorage.getItem("nexus_theme") || "dark";
+  document.documentElement.setAttribute("data-theme", t);
+</script>
+
+<header class="header">
+  <span class="logo-mark">WB</span>
+  <div>
+    <div class="title">WB App Store</div>
+    <div class="sub">Admin panel</div>
+  </div>
+  <button class="icon-btn" id="themeToggle">🌙</button>
+</header>
+
+<main class="container">
+  <h1>Admin</h1>
+  <p class="hero-sub">Add apps directly, or review what people have submitted.</p>
+
+  <div id="adminGate">
+    <div class="empty-state"><div class="glyph">⏳</div><p>Checking access…</p></div>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <div class="tabs">
+      <button data-tab="add" class="active">Add app</button>
+      <button data-tab="submissions">Submissions</button>
+      <button data-tab="seed">Starter catalog</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-add">
+      <div class="msg error" id="addError"></div>
+      <div class="msg success" id="addSuccess"></div>
+
+      <form id="addAppForm" class="card">
+        <div class="field-row">
+          <div class="field"><label for="appName">App / game name</label><input type="text" id="appName" required /></div>
+          <div class="field"><label for="developer">Developer</label><input type="text" id="developer" required /></div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="category">Category</label>
+            <select id="category" required>
+              <option value="games">Games</option>
+              <option value="apps">Apps</option>
+              <option value="education">Education</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="productivity">Productivity</option>
+              <option value="photography">Photography</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="type">Type</label>
+            <select id="type" required>
+              <option value="app">App</option>
+              <option value="game">Game</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field"><label for="tagline">Short tagline</label><input type="text" id="tagline" required /></div>
+        <div class="field"><label for="description">Full description</label><textarea id="description" required></textarea></div>
+
+        <div class="field-row">
+          <div class="field"><label for="version">Version</label><input type="text" id="version" placeholder="1.0.0" required /></div>
+          <div class="field"><label for="size">Size</label><input type="text" id="size" placeholder="25 MB" required /></div>
+        </div>
+
+        <div class="field-row">
+          <div class="field"><label for="downloads">Downloads label</label><input type="text" id="downloads" value="New" required /></div>
+          <div class="field"><label for="requires">Requires</label><input type="text" id="requires" value="Android 8.0+" required /></div>
+        </div>
+
+        <div class="field-row">
+          <div class="field"><label for="rating">Initial rating (0–5)</label><input type="number" id="rating" min="0" max="5" step="0.1" value="4.5" required /></div>
+          <div class="field">
+            <label for="accentSelect">Icon color</label>
+            <select id="accentSelect">
+              <option value="#C6FF3D">Lime</option>
+              <option value="#7C5CFF">Violet</option>
+              <option value="#FFB347">Orange</option>
+              <option value="#FF5C7A">Pink</option>
+              <option value="#3DD9C6">Teal</option>
+              <option value="#5B8DEF">Blue</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field"><label for="downloadLink">Download link (APK / GitHub / F-Droid)</label><input type="url" id="downloadLink" placeholder="https://" required /></div>
+
+        <div class="checkbox-field">
+          <input type="checkbox" id="trending" />
+          <label for="trending">Feature in Trending</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="addAppBtn">Add app to store</button>
+      </form>
+    </div>
+
+    <div class="tab-panel" id="tab-submissions">
+      <div id="submissionsList"><div class="empty-state"><div class="glyph">⏳</div><p>Loading submissions…</p></div></div>
+    </div>
+
+    <div class="tab-panel" id="tab-seed">
+      <div class="card">
+        <h3 style="font-family:var(--font-display);margin:0 0 6px;">Load the starter catalog</h3>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0 0 14px;">Pushes 12 sample apps into your live database. Safe to click more than once — it only runs if your catalog is currently empty.</p>
+        <button class="btn btn-primary btn-block" id="seedBtn">Seed starter catalog</button>
+        <p class="msg" id="seedResult" style="margin-top:12px;"></p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Firebase SDK (loaded from Google's CDN, not part of your uploaded files) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ============================================================
+   Everything below is self-contained: Firebase setup, data
+   helpers, and the admin panel logic — all in this one file.
+   ============================================================ */
+
+// ---------- 1. YOUR SETTINGS — edit these two lines ----------
+const firebaseConfig = {
+  apiKey: "AIzaSyBt63HR1KXUn2HBY19Gl_AMOsWH0EvAJps",
+  authDomain: "washu-a7841.firebaseapp.com",
+  projectId: "washu-a7841",
+  storageBucket: "washu-a7841.firebasestorage.app",
+  messagingSenderId: "970371423266",
+  appId: "1:970371423266:web:84d27cd6aa019ccc58be7b",
+  measurementId: "G-FD3SDT8KM1",
+};
+const ADMIN_EMAIL = "washubharadwaj55@gmail.com"; // <-- set this to your login email
+// ---------------------------------------------------------------
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const CATEGORIES = [
+  { id: "games", label: "Games" }, { id: "apps", label: "Apps" },
+  { id: "education", label: "Education" }, { id: "entertainment", label: "Entertainment" },
+  { id: "productivity", label: "Productivity" }, { id: "photography", label: "Photography" },
+];
+function categoryLabel(id) {
+  const c = CATEGORIES.find((c) => c.id === id);
+  return c ? c.label : id;
+}
+
+// 12 sample apps used only by the "Seed starter catalog" button.
+const SEED_APPS = [
+  { id: "pixel-runner", name: "Pixel Runner", developer: "Voltage Games", category: "games", tagline: "Endless retro runner with tight controls", description: "Pixel Runner is a fast-paced endless runner with 40+ unlockable characters and offline play.", version: "3.4.1", size: "58 MB", updated: "2026-06-28", downloads: "5M+", requires: "Android 8.0+", rating: 4.6, ratingCount: 18240, accent: "#C6FF3D", accent2: "#0F1115", trending: true, type: "game" },
+  { id: "chroma-editor", name: "Chroma Editor", developer: "Studio Lumen", category: "photography", tagline: "Pro-grade photo editing, on-device", description: "RAW editing, curve tools, AI-assisted masking, batch export and non-destructive layers.", version: "5.0.2", size: "112 MB", updated: "2026-07-02", downloads: "2M+", requires: "Android 9.0+", rating: 4.8, ratingCount: 9310, accent: "#7C5CFF", accent2: "#0F1115", trending: true, type: "app" },
+  { id: "lexicon-daily", name: "Lexicon Daily", developer: "BrightPath Learning", category: "education", tagline: "Build vocabulary five minutes a day", description: "Spaced repetition vocabulary drills across 12 languages with offline flashcard decks.", version: "2.1.0", size: "34 MB", updated: "2026-06-15", downloads: "800K+", requires: "Android 7.0+", rating: 4.7, ratingCount: 4120, accent: "#FFB347", accent2: "#0F1115", trending: false, type: "app" },
+  { id: "nightwave-radio", name: "Nightwave Radio", developer: "Aurora Audio", category: "entertainment", tagline: "Curated lo-fi and synthwave stations", description: "Hand-curated stations for focus and sleep, with background playback and a sleep timer.", version: "1.9.4", size: "21 MB", updated: "2026-05-30", downloads: "1.2M+", requires: "Android 8.0+", rating: 4.5, ratingCount: 6754, accent: "#FF5C7A", accent2: "#0F1115", trending: true, type: "app" },
+  { id: "taskgrid", name: "TaskGrid", developer: "Northline Software", category: "productivity", tagline: "Kanban boards that sync everywhere", description: "Drag-and-drop kanban boards, recurring tasks, home-screen widgets and a focus mode.", version: "4.2.6", size: "45 MB", updated: "2026-07-05", downloads: "3M+", requires: "Android 8.0+", rating: 4.4, ratingCount: 11032, accent: "#3DD9C6", accent2: "#0F1115", trending: false, type: "app" },
+  { id: "starforge-legends", name: "Starforge Legends", developer: "Iron Comet Studios", category: "games", tagline: "Tactical space RPG with squad building", description: "Turn-based tactics, deep loot, weekly co-op raids and a 25+ hour campaign.", version: "2.7.0", size: "890 MB", updated: "2026-07-10", downloads: "4.5M+", requires: "Android 9.0+", rating: 4.9, ratingCount: 27650, accent: "#5B8DEF", accent2: "#0F1115", trending: true, type: "game" },
+  { id: "quickcart", name: "QuickCart", developer: "Northline Software", category: "apps", tagline: "Shared grocery lists for busy households", description: "Real-time shared shopping lists, voice add, aisle sorting and offline support.", version: "1.5.3", size: "27 MB", updated: "2026-06-20", downloads: "650K+", requires: "Android 7.0+", rating: 4.3, ratingCount: 2985, accent: "#C6FF3D", accent2: "#0F1115", trending: false, type: "app" },
+  { id: "mathforge", name: "MathForge", developer: "BrightPath Learning", category: "education", tagline: "Visual algebra and calculus practice", description: "Interactive draggable graphs with step-by-step solution breakdowns.", version: "3.0.1", size: "40 MB", updated: "2026-06-11", downloads: "1.1M+", requires: "Android 8.0+", rating: 4.6, ratingCount: 5310, accent: "#7C5CFF", accent2: "#0F1115", trending: false, type: "app" },
+  { id: "driftline-kart", name: "Driftline Kart", developer: "Voltage Games", category: "games", tagline: "Arcade kart racing with local co-op", description: "24 tracks, 4-player split-screen co-op and a track editor.", version: "1.8.2", size: "410 MB", updated: "2026-06-25", downloads: "2.8M+", requires: "Android 9.0+", rating: 4.7, ratingCount: 14210, accent: "#FFB347", accent2: "#0F1115", trending: true, type: "game" },
+  { id: "streamvault", name: "StreamVault", developer: "Aurora Audio", category: "entertainment", tagline: "One inbox for every show you watch", description: "Tracks what you're watching across services and alerts you to new episodes.", version: "2.4.0", size: "33 MB", updated: "2026-06-08", downloads: "900K+", requires: "Android 8.0+", rating: 4.2, ratingCount: 3320, accent: "#FF5C7A", accent2: "#0F1115", trending: false, type: "app" },
+  { id: "focusframe", name: "FocusFrame", developer: "Studio Lumen", category: "productivity", tagline: "Screen time limits that actually stick", description: "Gentle app-blocking with weekly trend reports instead of guilt-trip notifications.", version: "1.3.5", size: "18 MB", updated: "2026-07-01", downloads: "1.4M+", requires: "Android 7.0+", rating: 4.5, ratingCount: 6011, accent: "#3DD9C6", accent2: "#0F1115", trending: false, type: "app" },
+  { id: "shuttersync", name: "ShutterSync", developer: "Studio Lumen", category: "photography", tagline: "Auto-backup for every photo you take", description: "Automatic encrypted photo backup with smart trip and face albums.", version: "6.1.0", size: "52 MB", updated: "2026-06-30", downloads: "3.6M+", requires: "Android 8.0+", rating: 4.4, ratingCount: 8890, accent: "#5B8DEF", accent2: "#0F1115", trending: false, type: "app" },
+];
+
+function slugify(str) {
+  return (str.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")) || "app";
+}
+
+// ---------- Firestore service functions ----------
+const AppsService = {
+  async addApp(app) {
+    const id = slugify(app.name) + "-" + Math.random().toString(36).slice(2, 7);
+    await db.collection("apps").doc(id).set({ ...app, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    return id;
+  },
+  async seedIfEmpty() {
+    const existing = await db.collection("apps").limit(1).get();
+    if (!existing.empty) return false;
+    const batch = db.batch();
+    SEED_APPS.forEach((app) => batch.set(db.collection("apps").doc(app.id), app));
+    await batch.commit();
+    return true;
+  },
+  async getSubmissions(status) {
+    const snap = await db.collection("submissions").where("status", "==", status).get();
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  },
+  async approveSubmission(sub) {
+    const id = slugify(sub.appName) + "-" + Math.random().toString(36).slice(2, 7);
+    await db.collection("apps").doc(id).set({
+      name: sub.appName, developer: sub.devName, category: sub.category,
+      tagline: sub.description, description: sub.description, version: "1.0.0",
+      size: "—", updated: new Date().toISOString().slice(0, 10), downloads: "New",
+      requires: "Android 8.0+", rating: 0, ratingCount: 0, accent: "#C6FF3D",
+      accent2: "#0F1115", trending: false, type: sub.category === "games" ? "game" : "app",
+      downloadLink: sub.downloadLink, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    await db.collection("submissions").doc(sub.id).update({ status: "approved" });
+    return id;
+  },
+  async rejectSubmission(id) {
+    await db.collection("submissions").doc(id).update({ status: "rejected" });
+  },
+};
+
+// ---------- Theme toggle ----------
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("nexus_theme", next);
+});
+
+// ---------- Toast ----------
+let toastTimer = null;
+function showToast(message) {
+  let toast = document.querySelector(".toast");
+  if (!toast) { toast = document.createElement("div"); toast.className = "toast"; document.body.appendChild(toast); }
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+}
+
+// ---------- Access gate ----------
+function isAdmin(user) {
+  return !!user && user.email === ADMIN_EMAIL;
+}
+
+function renderAdminGate(user) {
+  const gate = document.getElementById("adminGate");
+  const panel = document.getElementById("adminPanel");
+  if (isAdmin(user)) {
+    gate.style.display = "none";
+    panel.style.display = "";
+    initAdminPanel();
+    return;
+  }
+  panel.style.display = "none";
+  gate.style.display = "";
+  gate.innerHTML = `
+    <div class="card" style="max-width:340px;margin:40px auto;">
+      <div class="empty-state" style="padding:0 0 14px;">
+        <div class="glyph">🔒</div>
+        <p>Admin panel — enter password</p>
+      </div>
+      <div class="msg error" id="gateError"></div>
+      <form id="gateLoginForm">
+        <div class="field"><label for="gatePassword">Password</label><input type="password" id="gatePassword" required autocomplete="current-password" /></div>
+        <button type="submit" class="btn btn-primary btn-block" id="gateLoginBtn">Enter</button>
+      </form>
+    </div>
+  `;
+
+  const form = document.getElementById("gateLoginForm");
+  const errEl = document.getElementById("gateError");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errEl.classList.remove("show");
+    const btn = document.getElementById("gateLoginBtn");
+    btn.disabled = true;
+    btn.textContent = "Checking…";
+    const password = document.getElementById("gatePassword").value;
+    try {
+      await auth.signInWithEmailAndPassword(ADMIN_EMAIL, password);
+      // onAuthStateChanged below will re-render automatically on success
+    } catch (err) {
+      errEl.textContent =
+        err.code === "auth/wrong-password" || err.code === "auth/user-not-found" || err.code === "auth/invalid-credential"
+          ? "Incorrect password."
+          : (err.message || "Something went wrong. Please try again.");
+      errEl.classList.add("show");
+      btn.disabled = false;
+      btn.textContent = "Enter";
+    }
+  });
+}
+
+auth.onAuthStateChanged((user) => renderAdminGate(user));
+
+// ---------- Admin panel ----------
+let adminPanelInitialized = false;
+function initAdminPanel() {
+  if (adminPanelInitialized) return;
+  adminPanelInitialized = true;
+  initTabs();
+  initAddAppForm();
+  loadSubmissions();
+  initSeedButton();
+}
+
+function initTabs() {
+  const buttons = document.querySelectorAll(".tabs button");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      buttons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
+    });
+  });
+}
+
+function initAddAppForm() {
+  const form = document.getElementById("addAppForm");
+  const errEl = document.getElementById("addError");
+  const okEl = document.getElementById("addSuccess");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errEl.classList.remove("show");
+    okEl.classList.remove("show");
+    const btn = document.getElementById("addAppBtn");
+    btn.disabled = true;
+    btn.textContent = "Adding…";
+
+    try {
+      await AppsService.addApp({
+        name: document.getElementById("appName").value.trim(),
+        developer: document.getElementById("developer").value.trim(),
+        category: document.getElementById("category").value,
+        type: document.getElementById("type").value,
+        tagline: document.getElementById("tagline").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        version: document.getElementById("version").value.trim(),
+        size: document.getElementById("size").value.trim(),
+        updated: new Date().toISOString().slice(0, 10),
+        downloads: document.getElementById("downloads").value.trim(),
+        requires: document.getElementById("requires").value.trim(),
+        rating: Number(document.getElementById("rating").value) || 0,
+        ratingCount: 0,
+        accent: document.getElementById("accentSelect").value,
+        accent2: "#0F1115",
+        trending: document.getElementById("trending").checked,
+        downloadLink: document.getElementById("downloadLink").value.trim(),
+      });
+      okEl.textContent = "App added! It'll show up on the store right away.";
+      okEl.classList.add("show");
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      errEl.textContent = "Couldn't add the app. Please try again.";
+      errEl.classList.add("show");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Add app to store";
+    }
+  });
+}
+
+async function loadSubmissions() {
+  const listEl = document.getElementById("submissionsList");
+  try {
+    const submissions = await AppsService.getSubmissions("pending");
+    if (!submissions.length) {
+      listEl.innerHTML = `<div class="empty-state"><div class="glyph">📭</div><p>No pending submissions.</p></div>`;
+      return;
+    }
+    listEl.innerHTML = submissions.map((s) => `
+      <div class="card sub-card" data-id="${s.id}">
+        <h3>${s.appName}</h3>
+        <div class="meta">By ${s.devName} · ${categoryLabel(s.category)}</div>
+        <div class="meta">Contact: ${s.contact}</div>
+        <p>${s.description}</p>
+        <div class="meta">Link: <a href="${s.downloadLink}" target="_blank" rel="noopener">${s.downloadLink}</a></div>
+        <div class="meta">Rights: ${s.license}</div>
+        <div class="sub-actions">
+          <button class="btn btn-primary btn-sm approve-btn">Approve</button>
+          <button class="btn btn-ghost btn-sm reject-btn">Reject</button>
+        </div>
+      </div>`).join("");
+
+    listEl.querySelectorAll(".sub-card").forEach((card) => {
+      const id = card.dataset.id;
+      card.querySelector(".approve-btn").addEventListener("click", async () => {
+        card.querySelectorAll("button").forEach((b) => (b.disabled = true));
+        try {
+          const sub = submissions.find((s) => s.id === id);
+          await AppsService.approveSubmission(sub);
+          showToast("Approved and added to store");
+          card.remove();
+        } catch (err) {
+          showToast("Couldn't approve — please try again");
+          card.querySelectorAll("button").forEach((b) => (b.disabled = false));
+        }
+      });
+      card.querySelector(".reject-btn").addEventListener("click", async () => {
+        card.querySelectorAll("button").forEach((b) => (b.disabled = true));
+        try {
+          await AppsService.rejectSubmission(id);
+          showToast("Submission rejected");
+          card.remove();
+        } catch (err) {
+          showToast("Couldn't reject — please try again");
+          card.querySelectorAll("button").forEach((b) => (b.disabled = false));
+        }
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    listEl.innerHTML = `<div class="empty-state"><div class="glyph">⚠️</div><p>Couldn't load submissions.</p></div>`;
+  }
+}
+
+function initSeedButton() {
+  const btn = document.getElementById("seedBtn");
+  const result = document.getElementById("seedResult");
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    btn.textContent = "Seeding…";
+    try {
+      const seeded = await AppsService.seedIfEmpty();
+      result.className = "msg show " + (seeded ? "success" : "error");
+      result.textContent = seeded
+        ? "Starter catalog added to your database."
+        : "Your catalog already has apps in it — nothing was changed.";
+    } catch (err) {
+      result.className = "msg show error";
+      result.textContent = "Something went wrong seeding the catalog.";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Seed starter catalog";
+    }
+  });
+}
+</script>
+</body>
+</html>
